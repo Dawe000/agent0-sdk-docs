@@ -80,7 +80,7 @@ async function main() {
     chainId: 11155111, // Ethereum Sepolia testnet
     rpcUrl: process.env.RPC_URL || '',
     privateKey: process.env.PRIVATE_KEY, // Optional: private key for signing transactions
-    ipfs: 'pinata', // or 'filecoinPin' or 'node'
+    ipfs: 'pinata', // or 'filecoinPin' or 'node' (Kubo daemon) or 'helia' (embedded)
     pinataJwt: process.env.PINATA_JWT, // Required if ipfs='pinata'
   });
 

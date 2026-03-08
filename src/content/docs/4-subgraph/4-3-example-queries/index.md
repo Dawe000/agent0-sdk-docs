@@ -199,10 +199,14 @@ Example GraphQL queries for the Agent0 subgraph.
       createdAt
       feedbackFile {
         text
-        capability
-        skill
-        task
-        context
+        mcpTool
+        mcpPrompt
+        mcpResource
+        a2aSkills
+        a2aContextId
+        a2aTaskId
+        oasfSkills
+        oasfDomains
       }
       responses {
         responder

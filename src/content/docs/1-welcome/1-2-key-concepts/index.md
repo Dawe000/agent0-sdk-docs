@@ -70,11 +70,9 @@ Each feedback includes:
 
 - **Value** (signed decimal) - Reputation/trust value *(mandatory)*
 - **Tags** - Usually replicate key attributes (e.g., tool name “fetch_file”, skill “data_analysis”) *(optional)*
-- **Capability** - For MCP: which type (“prompts”, “resources”, “tools”) *(optional)*
-- **Name** - For MCP: specific tool/resource/prompt name *(optional)*
-- **Skill** - For A2A: which skill was evaluated *(optional)*
-- **Task** - For A2A: which task was performed *(optional)*
-- **Context** - For A2A: which context was accessed *(optional)*
+- **MCP fields** - `mcpTool`, `mcpPrompt`, `mcpResource` *(optional)*
+- **A2A fields** - `a2aSkills`, `a2aTaskId`, `a2aContextId` *(optional)*
+- **OASF fields** - `oasfSkills`, `oasfDomains` *(optional)*
 - **Payment proof** - Cryptographic proof of x402 payment *(optional)*
 ### Feedback Storage
 
@@ -89,7 +87,7 @@ Feedback can be stored in two ways, giving developers flexibility:
 **Option 2: Hybrid on-chain/off-chain**
 
 - Store value, tags and endpoint on-chain
-- Store complete feedback data (context, capability details, payment proofs) in a feedback file on IPFS or HTTP
+- Store complete feedback data (text + spec-aligned protocol fields + payment proofs) in a feedback file on IPFS or HTTP
 - On-chain commitment (IPFS CID or HTTP URI + hash) ensures tamper-proof security
 - More detailed feedback with cryptographic guarantees
 

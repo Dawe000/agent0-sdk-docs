@@ -386,18 +386,22 @@ class Feedback:
     value: Optional[float]
     tags: List[str]
     text: Optional[str]
-    context: Optional[Dict[str, Any]]
     proofOfPayment: Optional[Dict]
     fileURI: Optional[URI]
+    endpoint: Optional[str]
     createdAt: Timestamp
     answers: List[Dict[str, Any]]
     isRevoked: bool
 
-    # Off-chain fields
-    capability: Optional[str]
-    name: Optional[str]
-    skill: Optional[str]
-    task: Optional[str]
+    # Spec-aligned FeedbackFile fields (populated when a feedback file exists)
+    mcpTool: Optional[str]
+    mcpPrompt: Optional[str]
+    mcpResource: Optional[str]
+    a2aSkills: List[str]
+    a2aContextId: Optional[str]
+    a2aTaskId: Optional[str]
+    oasfSkills: List[str]
+    oasfDomains: List[str]
 ```
 
 </TabItem>
@@ -412,18 +416,22 @@ export interface Feedback {
   value?: number;
   tags: string[];
   text?: string;
-  context?: Record;
   proofOfPayment?: Record;
   fileURI?: URI;
+  endpoint?: string;
   createdAt: Timestamp;
   answers: Array<Record>;
   isRevoked: boolean;
 
-  // Off-chain only fields (not stored on blockchain)
-  capability?: string;  // MCP capability: "prompts", "resources", "tools", "completions"
-  name?: string;  // MCP tool/resource name
-  skill?: string;  // A2A skill
-  task?: string;  // A2A task
+  // Subgraph FeedbackFile fields (spec-aligned)
+  mcpTool?: string;
+  mcpPrompt?: string;
+  mcpResource?: string;
+  a2aSkills?: string[];
+  a2aContextId?: string;
+  a2aTaskId?: string;
+  oasfSkills?: string[];
+  oasfDomains?: string[];
 }
 
 // Feedback ID types

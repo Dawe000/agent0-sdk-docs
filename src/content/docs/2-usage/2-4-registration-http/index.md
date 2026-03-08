@@ -4,6 +4,12 @@ description: "Register agents with HTTP URLs"
 ---
 Register your agent on-chain with a direct HTTP/HTTPS URL to your registration file.
 
+## Alternative: Fully on-chain registration (data URI)
+
+ERC-8004 also allows storing the entire registration JSON **directly on-chain** via a base64 `data:` URI (`data:application/json;base64,...`), removing the need for HTTP hosting.
+
+- Learn the fully on-chain flow here: [Registration (On-chain data URI)](/2-usage/2-9-registration-onchain-data-uri/)
+
 ## Overview
 
 HTTP registration is useful when:

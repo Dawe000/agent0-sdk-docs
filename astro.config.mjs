@@ -49,6 +49,7 @@ export default defineConfig({
             { label: "Configure Agents", link: "/2-usage/2-2-configure-agents/" },
             { label: "Registration (IPFS)", link: "/2-usage/2-3-registration-ipfs/" },
             { label: "Registration (HTTP)", link: "/2-usage/2-4-registration-http/" },
+            { label: "Registration (On-chain data URI)", link: "/2-usage/2-9-registration-onchain-data-uri/" },
             { label: "Search", link: "/2-usage/2-5-search/" },
             { label: "Feedback", link: "/2-usage/2-6-use-feedback/" },
             { label: "Transfer", link: "/2-usage/2-7-transfer-agents/" },

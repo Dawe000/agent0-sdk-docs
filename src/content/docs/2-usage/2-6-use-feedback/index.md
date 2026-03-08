@@ -20,7 +20,7 @@ Submit feedback on-chain. **Only `agentId` and `value` are required.**
 
 Optionally, you can also include **additional on-chain fields** (`tag1`, `tag2`, `endpoint`).
 
-Separately, if you want richer context (text/capability/skill/task/etc), you can **optionally** attach an **off-chain** `feedbackFile` payload (see the next section).
+Separately, if you want richer off-chain metadata (text + spec-aligned protocol fields), you can **optionally** attach an **off-chain** `feedbackFile` payload (see the next section).
 
 ### Feedback Parameters
 
@@ -41,11 +41,14 @@ Separately, if you want richer context (text/capability/skill/task/etc), you can
 Common `feedbackFile` fields:
 
 - `text` - Optional free-form text
-- `capability` - MCP capability type (“tools”, “prompts”, “resources”)
-- `name` - MCP tool/resource/prompt name
-- `skill` - A2A skill identifier
-- `task` - A2A task identifier
-- `context` - Dictionary with additional context information
+- `mcpTool` - MCP tool identifier (string)
+- `mcpPrompt` - MCP prompt identifier (string)
+- `mcpResource` - MCP resource identifier (string)
+- `a2aSkills` - A2A skills evaluated (string array)
+- `a2aContextId` - A2A context identifier (string)
+- `a2aTaskId` - A2A task identifier (string)
+- `oasfSkills` - OASF skills evaluated (string array)
+- `oasfDomains` - OASF domains evaluated (string array)
 - `proofOfPayment` - Payment proof data for x402 payments
 
 <Tabs>
@@ -83,7 +86,7 @@ const { result: feedback2 } = await tx.waitConfirmed();
 
 ## Optional: Prepare a Feedback File (Rich Off-chain Fields)
 
-Use `prepareFeedbackFile()` to build an **optional off-chain** feedback payload when you need rich fields (text/context/capability/etc).
+Use `prepareFeedbackFile()` to build an **optional off-chain** feedback payload when you need rich fields (text + spec-aligned protocol fields).
 On-chain fields like `value`, `tag1`, `tag2`, and `endpoint` are still passed directly to `giveFeedback(...)`.
 
 <Tabs>
@@ -92,11 +95,11 @@ On-chain fields like `value`, `tag1`, `tag2`, and `endpoint` are still passed di
 ```python
 feedback_file = sdk.prepareFeedbackFile({
     "text": "Great agent, very helpful.",
-    "capability": "tools",
-    "name": "financial_analyzer",
-    "skill": "financial_analysis",
-    "task": "analyze_balance_sheet",
-    "context": {"sessionId": "abc"},
+    "mcpTool": "financial_analyzer",
+    "a2aSkills": ["financial_analysis"],
+    "a2aTaskId": "analyze_balance_sheet",
+    "a2aContextId": "session:abc",
+    "proofOfPayment": {"txHash": "0x...", "amount": "0.01"},
 })
 
 # Submit feedback (on-chain fields + optional feedbackFile)
@@ -117,11 +120,11 @@ feedback = tx.wait_confirmed(timeout=180).result
 ```ts
 const feedbackFile = sdk.prepareFeedbackFile({
   text: 'Great agent, very helpful.',
-  capability: 'tools',
-  name: 'financial_analyzer',
-  skill: 'financial_analysis',
-  task: 'analyze_balance_sheet',
-  context: { sessionId: 'abc' },
+  mcpTool: 'financial_analyzer',
+  a2aSkills: ['financial_analysis'],
+  a2aTaskId: 'analyze_balance_sheet',
+  a2aContextId: 'session:abc',
+  proofOfPayment: { txHash: '0x...', amount: '0.01' },
 });
 
 // Submit feedback (on-chain fields + optional feedbackFile)
@@ -173,6 +176,11 @@ console.log(`Tags: ${feedback.tags}`);
 
 ### Search Feedback
 
+**Important:** The filter parameter names `capabilities` and `skills` are kept for compatibility, but they map to the spec-aligned feedback file fields:
+
+- `capabilities` → `feedbackFile.mcpTool`
+- `skills` → `feedbackFile.a2aSkills`
+
 <Tabs>
 <TabItem label="Python">
 
@@ -181,8 +189,8 @@ console.log(`Tags: ${feedback.tags}`);
 # Using default chain
 results = sdk.searchFeedback(
     agentId="123",  # Uses SDK's default chain
-    capabilities=["tools"],
-    skills=["python"],
+    capabilities=["financial_analyzer"],  # filters by feedbackFile.mcpTool
+    skills=["financial_analysis"],        # filters by feedbackFile.a2aSkills
     tags=["data_analyst"],
     minValue=0,
     maxValue=100
@@ -212,8 +220,8 @@ const results = await sdk.searchFeedback(
   {
     agentId: '123', // Uses SDK's default chain
     tags: ['data_analyst'],
-    capabilities: ['tools'],
-    skills: ['python'],
+    capabilities: ['financial_analyzer'], // filters by feedbackFile.mcpTool
+    skills: ['financial_analysis'],       // filters by feedbackFile.a2aSkills
   },
   { minValue: 0, maxValue: 100 }
 );
@@ -496,11 +504,15 @@ class Feedback:
     reviewer: str                  # Client address
     value: float                   # Signed decimal value (MANDATORY)
     tags: Optional[List[str]]      # Categorization tags (optional)
-    capability: Optional[str]      # MCP capability type (optional)
-    name: Optional[str]            # MCP tool/resource/prompt name (optional)
-    skill: Optional[str]           # A2A skill (optional)
-    task: Optional[str]           # A2A task (optional)
-    context: Optional[dict]       # Additional context (optional)
+    # Spec-aligned FeedbackFile fields (populated when a feedback file exists)
+    mcpTool: Optional[str]
+    mcpPrompt: Optional[str]
+    mcpResource: Optional[str]
+    a2aSkills: Optional[List[str]]
+    a2aContextId: Optional[str]
+    a2aTaskId: Optional[str]
+    oasfSkills: Optional[List[str]]
+    oasfDomains: Optional[List[str]]
     fileURI: Optional[str]         # IPFS/HTTPS URI (if feedback file exists)
     createdAt: int                 # Timestamp
     answers: List[dict]            # Responses

@@ -543,11 +543,10 @@ Prepare an **off-chain** feedback file payload (optional).
 ```python
 feedback_file = sdk.prepareFeedbackFile({
     "text": "Optional rich feedback text",
-    "capability": "tools",
-    "name": "financial_analyzer",
-    "skill": "financial_analysis",
-    "task": "analyze_balance_sheet",
-    "context": {"userId": "user123"},
+    "mcpTool": "financial_analyzer",
+    "a2aSkills": ["financial_analysis"],
+    "a2aTaskId": "analyze_balance_sheet",
+    "a2aContextId": "session:abc",
     "proofOfPayment": {"txHash": "0x...", "amount": "0.01"},
 })
 ```
@@ -561,11 +560,10 @@ import type { FeedbackFileInput } from 'agent0-sdk';
 
 const feedbackFile: FeedbackFileInput = sdk.prepareFeedbackFile({
   text: undefined,
-  capability: 'tools',
-  name: 'financial_analyzer',
-  skill: 'financial_analysis',
-  task: 'analyze_balance_sheet',
-  context: { userId: 'user123' },
+  mcpTool: 'financial_analyzer',
+  a2aSkills: ['financial_analysis'],
+  a2aTaskId: 'analyze_balance_sheet',
+  a2aContextId: 'session:abc',
   proofOfPayment: { txHash: '0x...', amount: '0.01' },
 });
 ```
@@ -653,6 +651,13 @@ const feedback: Feedback = await sdk.getFeedback(
 
 Search feedback with filters.
 
+**Important:** Some filter names are kept for backwards compatibility, but map to spec-aligned feedback file fields:
+
+- `capabilities` → `feedbackFile.mcpTool`
+- `skills` → `feedbackFile.a2aSkills`
+- `tasks` → `feedbackFile.a2aTaskId` (best-effort)
+- `names` → legacy (do not use; prefer `mcpTool` / `mcpPrompt` / `mcpResource`)
+
 <Tabs>
 <TabItem label="Python">
 
@@ -662,10 +667,8 @@ results = sdk.searchFeedback(
     agents=None,             # optional: search across multiple agents
     reviewers=None,
     tags=["data_analyst"],
-    capabilities=["tools"],
+    capabilities=["financial_analyzer"],
     skills=["financial_analysis"],
-    tasks=None,
-    names=None,
     minValue=0,
     maxValue=100,
     include_revoked=False,
@@ -690,7 +693,7 @@ const results: Feedback[] = await sdk.searchFeedback(
     capabilities?: string[];
     skills?: string[];
     tasks?: string[];
-    names?: string[];
+    names?: string[]; // legacy (do not use; prefer mcpTool/mcpPrompt/mcpResource in feedbackFile)
     includeRevoked?: boolean;
   },
   options?: { minValue?: number; maxValue?: number }

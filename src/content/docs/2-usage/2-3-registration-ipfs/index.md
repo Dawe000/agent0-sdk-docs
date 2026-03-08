@@ -4,6 +4,12 @@ description: "Register agents with IPFS"
 ---
 Register your agent on-chain with automatic IPFS storage for decentralized, censorship-resistant registration files.
 
+## Alternative: Fully on-chain registration (data URI)
+
+ERC-8004 also allows storing the entire registration JSON **directly on-chain** via a base64 `data:` URI (`data:application/json;base64,...`).
+
+- Learn the fully on-chain flow here: [Registration (On-chain data URI)](/2-usage/2-9-registration-onchain-data-uri/)
+
 ## Overview
 
 The IPFS registration flow handles everything automatically:
@@ -79,7 +85,7 @@ const sdk = new SDK({
 </TabItem>
 </Tabs>
 
-### IPFS Node
+### IPFS Node (Kubo daemon)
 
 <Tabs>
 <TabItem label="Python">
@@ -109,6 +115,19 @@ const sdk = new SDK({
 
 </TabItem>
 </Tabs>
+
+### Embedded Helia (TypeScript)
+
+If you prefer **no separate IPFS daemon**, you can run an embedded Helia node in-process:
+
+```ts
+const sdk = new SDK({
+  chainId: 11155111,
+  rpcUrl: '...',
+  privateKey: privateKey,
+  ipfs: 'helia',
+});
+```
 
 ## Register Agent
 

@@ -30,14 +30,14 @@ client_sdk = SDK(
 
 agent_id = "11155111:123"
 
-# Client prepares an OPTIONAL off-chain feedback file (for rich fields)
+# Client prepares an OPTIONAL off-chain feedback file (spec-aligned fields)
 feedback_file = client_sdk.prepareFeedbackFile(
     {
         "text": "Great agent, very helpful.",
-        "capability": "tools",
-        "name": "financial_analyzer",
-        "skill": "financial_analysis",
-        "context": {"sessionId": "abc"},
+        "mcpTool": "financial_analyzer",
+        "a2aSkills": ["financial_analysis"],
+        "a2aTaskId": "analyze_balance_sheet",
+        "a2aContextId": "session:abc",
     }
 )
 
@@ -117,12 +117,11 @@ async function main() {
   // Client prepares an OFF-CHAIN feedback file (optional).
   // This does NOT include on-chain fields like value/tag1/tag2/endpoint.
   const feedbackFile = clientSdk.prepareFeedbackFile({
-    text: undefined,
-    capability: 'tools',
-    name: 'financial_analyzer',
-    skill: 'financial_analysis',
-    task: 'analyze_balance_sheet',
-    context: { userId: 'user123', sessionId: 'session456' },
+    text: 'Great agent, very helpful.',
+    mcpTool: 'financial_analyzer',
+    a2aSkills: ['financial_analysis'],
+    a2aTaskId: 'analyze_balance_sheet',
+    a2aContextId: 'session:abc',
     proofOfPayment: { txHash: '0x...', amount: '0.01' },
   });
 
@@ -155,7 +154,7 @@ async function main() {
     {
       agentId,
       tags: ['data_analyst'],
-      capabilities: ['tools'],
+      capabilities: ['financial_analyzer'],
       skills: ['financial_analysis'],
     },
     { minValue: 80 }

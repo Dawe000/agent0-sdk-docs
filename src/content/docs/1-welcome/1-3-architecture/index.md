@@ -19,7 +19,7 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 **Decentralized Storage (Off-chain)**
 
 - Complete agent registration files (IPFS/HTTP)
-- Detailed feedback data (context, capability info, payment proofs)
+- Detailed feedback files (text + spec-aligned fields like `mcpTool`, `a2aSkills`, `oasfSkills`, plus payment proofs)
 - Agent images and additional metadata
 
 **Developer Applications**
@@ -126,7 +126,7 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 
 - **Create Feedback File (optional)** → Developer calls `SDK.prepareFeedbackFile()`
 
-- Creates detailed feedback file with context, capability info, payment proofs
+- Creates detailed feedback file with spec-aligned protocol fields (e.g., `mcpTool`, `a2aSkills`, `a2aContextId`, `a2aTaskId`, `oasfSkills`, `oasfDomains`) and payment proofs
 
 - **Upload to Storage** → SDK uploads to IPFS/HTTP
 
@@ -201,7 +201,7 @@ Agent0 SDK provides a unified interface for managing agent identities, enabling 
 - **Retrieve Details** → SDK fetches feedback files from IPFS/HTTP
 
 - Downloads complete feedback data
-- Parses context, capability info, payment proofs
+- Parses spec-aligned feedback-file fields and payment proofs
 
 - **Return Results** → SDK returns `Feedback` object
 

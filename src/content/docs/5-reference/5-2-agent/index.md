@@ -711,6 +711,38 @@ const { result: regFile } = await tx.waitConfirmed();
 
 **TypeScript Note:** Method is async and returns `Promise<RegistrationFile>`.
 
+### registerOnChain
+
+Register with a fully on-chain ERC-8004 registration file by writing `agentURI`/`tokenURI` as a base64 JSON `data:` URI (`data:application/json;base64,...`).
+
+This is a convenient wrapper over the Identity Registry `register(...)` / `setAgentURI(...)` calls and is **additive** (does not change `registerIPFS()` or HTTP registration).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+tx = agent.registerOnChain() -> TransactionHandle[RegistrationFile]
+reg_file = tx.wait_confirmed(timeout=180).result
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import type { RegistrationFile, TransactionHandle } from 'agent0-sdk';
+
+const tx: TransactionHandle<RegistrationFile> = await agent.registerOnChain();
+const { result: regFile } = await tx.waitConfirmed();
+```
+
+</TabItem>
+</Tabs>
+
+Notes:
+
+- Writing large strings on-chain can be expensive (gas). Keep the registration JSON compact.
+- `loadAgent()` enforces a max decoded `data:` URI size by default (256 KiB). Configure it on the SDK if needed.
+
 ### register
 
 Register with direct URI.
