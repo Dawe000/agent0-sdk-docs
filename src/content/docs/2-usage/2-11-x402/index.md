@@ -6,7 +6,7 @@ When a server returns **HTTP 402 Payment Required**, the response describes how 
 
 ## Request and pay on 402
 
-Call `sdk.request()` with a URL and method. If the server returns 402, the result has `x402Required` and an `x402Payment` object; call `pay()` to pay and receive the success body.
+Call `sdk.request()` with a URL and method. If the server returns 402, the result has `x402Required` and an `x402Payment` object; call `pay()` to pay and receive the success body. The SDK must have a connected signer and RPC to build and send payments; the signer can be a private key, wallet provider, or other supported signer.
 
 <Tabs>
 <TabItem label="Python">

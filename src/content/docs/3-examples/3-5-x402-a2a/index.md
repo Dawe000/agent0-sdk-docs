@@ -2,13 +2,11 @@
 title: "x402 and A2A"
 description: "Call payment-required APIs and A2A agents, with optional payment"
 ---
-This example shows three flows: (1) **pure x402** — GET a paid API and pay; (2) **pure A2A** — message an agent, use tasks, list and load tasks; (3) **A2A + x402** — message an agent that returns 402, pay, then get the response. Same pattern in Python and TypeScript.
+Examples for calling paid APIs (x402) and A2A agents, with and without payment. The SDK must have a connected signer and RPC when you need to sign or pay (e.g. x402); the signer can be a private key, wallet provider, or other supported signer.
 
-**Environment:** Set `PRIVATE_KEY` (or `AGENT_PRIVATE_KEY`) and `RPC_URL`. Optional: `CHAIN_ID` (default 84532), `BASE_MAINNET_RPC_URL`, agent IDs, `X402_DEMO_URL` for flow 1.
+## Call a payment-required API (x402)
 
-## Flow 1 — Pure x402
-
-Call a payment-required HTTP API. On 402, pay with the first accept and use the response.
+GET a URL that returns 402; pay with the first accept and use the response.
 
 <Tabs>
 <TabItem label="Python">
@@ -53,9 +51,9 @@ if (isX402Required(result)) {
 </TabItem>
 </Tabs>
 
-## Flow 2 — Pure A2A
+## Message an A2A agent and use tasks
 
-Load an agent, create an A2A client, send a message. If the response includes a task, query it, send a follow-up, and cancel. Then list tasks and load the first one.
+Load an agent and send a message. If the agent returns a task, query it, send a follow-up, cancel, then list and load tasks.
 
 <Tabs>
 <TabItem label="Python">
@@ -66,17 +64,15 @@ import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 agent = sdk.loadAgent(os.getenv("AGENT_ID_PURE_A2A", "84532:1298"))
-client = sdk.createA2AClient(agent)
-
-out = client.messageA2A("Hello, this is a demo message.")
+out = agent.messageA2A("Hello, this is a demo message.")
 if not getattr(out, "x402Required", False):
     if hasattr(out, "task") and out.task:
         out.task.query()
         out.task.message("Follow-up message.")
         out.task.cancel()
-    tasks = client.listTasks()
+    tasks = agent.listTasks()
     if isinstance(tasks, list) and tasks:
-        loaded = client.loadTask(tasks[0].taskId)
+        loaded = agent.loadTask(tasks[0].taskId)
         loaded.query()
 ```
 
@@ -92,18 +88,16 @@ const sdk = new SDK({
   privateKey: process.env.PRIVATE_KEY,
 });
 const agent = await sdk.loadAgent(process.env.AGENT_ID_PURE_A2A ?? '84532:1298');
-const client = sdk.createA2AClient(agent);
-
-const msg = await client.messageA2A('Hello, this is a demo message.');
+const msg = await agent.messageA2A('Hello, this is a demo message.');
 if (!msg.x402Required) {
   if ('task' in msg) {
     await msg.task.query();
     await msg.task.message('Follow-up message.');
     await msg.task.cancel();
   }
-  const tasks = await client.listTasks();
+  const tasks = await agent.listTasks();
   if (Array.isArray(tasks) && tasks.length > 0) {
-    const loaded = await client.loadTask(tasks[0].taskId);
+    const loaded = await agent.loadTask(tasks[0].taskId);
     await loaded.query();
   }
 }
@@ -112,9 +106,9 @@ if (!msg.x402Required) {
 </TabItem>
 </Tabs>
 
-## Flow 3 — A2A + x402
+## Message an A2A agent that requires payment
 
-Message an agent that returns 402. Pay, then use the returned message or task response.
+When the agent returns 402, pay then use the returned message or task response.
 
 <Tabs>
 <TabItem label="Python">
@@ -125,9 +119,7 @@ import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 agent = sdk.loadAgent(os.getenv("AGENT_ID_A2A_X402", "84532:1301"))
-client = sdk.createA2AClient(agent)
-
-result = client.messageA2A("Hello, please charge me once.")
+result = agent.messageA2A("Hello, please charge me once.")
 if getattr(result, "x402Required", False):
     paid = result.x402Payment.pay()
     print(paid)
@@ -147,9 +139,7 @@ const sdk = new SDK({
   privateKey: process.env.PRIVATE_KEY,
 });
 const agent = await sdk.loadAgent(process.env.AGENT_ID_A2A_X402 ?? '84532:1301');
-const client = sdk.createA2AClient(agent);
-
-const result = await client.messageA2A('Hello, please charge me once.');
+const result = await agent.messageA2A('Hello, please charge me once.');
 if (result.x402Required) {
   const paid = await result.x402Payment.pay();
   console.log(paid);
@@ -161,4 +151,4 @@ if (result.x402Required) {
 </TabItem>
 </Tabs>
 
-For more options and details, see the [x402](/2-usage/2-11-x402/) and [A2A](/2-usage/2-10-a2a/) usage guides. Full runnable demos: **agent0-ts** `examples/x402-a2a-demo.ts`, **agent0-py** `examples/x402_a2a_demo.py`.
+See the [x402](/2-usage/2-11-x402/) and [A2A](/2-usage/2-10-a2a/) usage guides for more.

@@ -6,7 +6,7 @@ Use the SDK to **call** other agents via the A2A (Agent-to-Agent) protocol: send
 
 ## Send a message
 
-Load an agent by ID, create an A2A client, and send a message. The response is either a direct message reply or a task (if the agent created one).
+Load an agent by ID and send a message. The response is either a direct message reply or a task (if the agent created one). Use an SDK with a connected signer and RPC when the agent requires payment (402); the signer can be a private key, wallet provider, or other supported signer.
 
 <Tabs>
 <TabItem label="Python">
@@ -22,8 +22,7 @@ sdk = SDK(
 )
 
 agent = sdk.loadAgent("84532:1298")
-client = sdk.createA2AClient(agent)
-out = client.messageA2A("Hello, this is a demo message.")
+out = agent.messageA2A("Hello, this is a demo message.")
 
 if getattr(out, "x402Required", False):
     # Agent requires payment — see "When the agent returns 402" below
@@ -51,8 +50,7 @@ const sdk = new SDK({
 });
 
 const agent = await sdk.loadAgent('84532:1298');
-const client = sdk.createA2AClient(agent);
-const msg = await client.messageA2A('Hello, this is a demo message.');
+const msg = await agent.messageA2A('Hello, this is a demo message.');
 
 if (msg.x402Required) {
   // Agent requires payment — see "When the agent returns 402" below
@@ -78,9 +76,9 @@ List tasks for the agent, then load a specific task by ID to query it or send fo
 <TabItem label="Python">
 
 ```python
-tasks = client.listTasks()
+tasks = agent.listTasks()
 if not getattr(tasks, "x402Required", False) and isinstance(tasks, list) and tasks:
-    loaded = client.loadTask(tasks[0].taskId)
+    loaded = agent.loadTask(tasks[0].taskId)
     loaded.query()
 ```
 
@@ -88,9 +86,9 @@ if not getattr(tasks, "x402Required", False) and isinstance(tasks, list) and tas
 <TabItem label="TypeScript">
 
 ```ts
-const tasks = await client.listTasks();
+const tasks = await agent.listTasks();
 if (!tasks.x402Required && Array.isArray(tasks) && tasks.length > 0) {
-  const loaded = await client.loadTask(tasks[0].taskId);
+  const loaded = await agent.loadTask(tasks[0].taskId);
   await loaded.query();
 }
 ```
@@ -118,7 +116,7 @@ If the A2A server returns HTTP 402 Payment Required, the result has `x402Require
 <TabItem label="Python">
 
 ```python
-result = client.messageA2A("Hello, please charge me once.")
+result = agent.messageA2A("Hello, please charge me once.")
 if getattr(result, "x402Required", False):
     paid = result.x402Payment.pay()  # Returns MessageResponse or TaskResponse after payment
     print(paid)
@@ -130,7 +128,7 @@ else:
 <TabItem label="TypeScript">
 
 ```ts
-const result = await client.messageA2A('Hello, please charge me once.');
+const result = await agent.messageA2A('Hello, please charge me once.');
 if (result.x402Required) {
   const paid = await result.x402Payment.pay();
   console.log(paid);
@@ -150,6 +148,6 @@ if (result.x402Required) {
 
 See the SDK reference for full option types. The minimal examples above work without options.
 
-## Client from agent or summary
+## Using an AgentSummary from search
 
-`createA2AClient(agentOrSummary)` accepts either a full **Agent** (from `loadAgent`) or an **AgentSummary** (e.g. from `searchAgents`). The client resolves the A2A endpoint from `summary.a2a` when given a summary, so you can call A2A agents directly from search results without loading the full agent.
+When you have an **Agent** (from `loadAgent`), call `messageA2A`, `listTasks`, and `loadTask` on it directly. When you have an **AgentSummary** (e.g. from `searchAgents`) and no full Agent, use `sdk.createA2AClient(summary)` to get a client that resolves the A2A endpoint from `summary.a2a` and exposes the same methods.
