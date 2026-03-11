@@ -51,6 +51,8 @@ export default defineConfig({
             { label: "Registration (HTTP)", link: "/2-usage/2-4-registration-http/" },
             { label: "Registration (On-chain data URI)", link: "/2-usage/2-9-registration-onchain-data-uri/" },
             { label: "Search", link: "/2-usage/2-5-search/" },
+            { label: "x402", link: "/2-usage/2-11-x402/" },
+            { label: "A2A", link: "/2-usage/2-10-a2a/" },
             { label: "Feedback", link: "/2-usage/2-6-use-feedback/" },
             { label: "Transfer", link: "/2-usage/2-7-transfer-agents/" },
             { label: "Client-side usage", link: "/2-usage/2-8-browser-wallets/" }
@@ -62,7 +64,8 @@ export default defineConfig({
             { label: "Quick Start", link: "/3-examples/3-1-quick-start/" },
             { label: "Agent Update", link: "/3-examples/3-2-agent-update/" },
             { label: "Feedback Usage", link: "/3-examples/3-3-feedback-usage/" },
-            { label: "Search Agents", link: "/3-examples/3-4-search-agents/" }
+            { label: "Search Agents", link: "/3-examples/3-4-search-agents/" },
+            { label: "x402 and A2A", link: "/3-examples/3-5-x402-a2a/" }
           ]
         },
         {
