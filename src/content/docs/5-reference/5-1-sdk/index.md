@@ -24,6 +24,7 @@ sdk = SDK(
     filecoinPrivateKey=None,
     pinataJwt=None,
     subgraphOverrides=None,  # Optional[Dict[ChainId, str]]
+    overrideRpcUrls=None,  # Optional[Dict[int, str]] — per-chain RPC URLs for x402 payments and loadAgent on other chains
 )
 ```
 
@@ -44,6 +45,8 @@ const sdk = new SDK({
   // registryOverrides?: Record<ChainId, Record<string, Address>>
   // subgraphUrl?: string
   // subgraphOverrides?: Record<ChainId, string>
+  // Per-chain RPC URLs for x402 payments and loadAgent on other chains:
+  // overrideRpcUrls?: Record<number, string>,
 });
 ```
 
@@ -51,6 +54,8 @@ const sdk = new SDK({
 </Tabs>
 
 **Note:** The `chainId` parameter sets the SDK’s default chain. When you provide an `agentId` without a `chainId` prefix, the SDK uses this default chain.
+
+**overrideRpcUrls:** Optional map of chain ID to RPC URL (e.g. `{ 84532: 'https://base-sepolia.drpc.org', 8453: 'https://base.drpc.org' }`). Used for x402 EVM payments on chains other than the primary, and for `loadAgent` when the agent is on another chain. Merged after built-in defaults and `rpcUrl`.
 
 **TypeScript note:** `signer` is still accepted as a backwards-compatible alias for `privateKey`.
 
@@ -851,6 +856,280 @@ const summary: { count: number; averageValue: number } = await sdk.getReputation
 **Parameters:**
 
 - `agentId` (str / AgentId): Agent ID in format `"agentId"` (uses SDK’s default chain) or `"chainId:agentId"` (explicit chain)
+
+## Request and x402
+
+Perform HTTP requests with 402 (Payment Required) handling. See [Usage: x402](/2-usage/2-11-x402/).
+
+### request (fetchWithX402)
+
+Perform an HTTP request with x402 handling. On 2xx, returns the parsed response body. On 402, returns an object with `x402Required: true` and `x402Payment`; use `isX402Required` / `is_x402_required` to narrow, then `x402Payment.pay()` or `payFirst()` to pay and retry.
+
+**Options (X402RequestOptions):** `url`, `method`, `headers?`, `body?`, `parseResponse?`, `payment?`.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+result = sdk.request(
+    options: Dict[str, Any]
+) -> Union[T, X402RequiredResponse[T]]
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const result = await sdk.request<T>(options: X402RequestOptions<T>);
+sdk.fetchWithX402(options);  // alias
+```
+
+</TabItem>
+</Tabs>
+
+**Returns:** Parsed body `T` on success, or **X402RequiredResponse&lt;T&gt;** on 402 (with `x402Payment.pay()` / `payFirst()`).
+
+### getX402RequestDeps / get_x402_request_deps
+
+Returns the internal deps (fetch, buildPayment, checkBalance) used by `request` and by A2A when handling 402. Use when building a custom x402-aware request pipeline; most callers should use `sdk.request()` or agent A2A methods instead.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+deps = sdk.get_x402_request_deps()
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const deps = sdk.getX402RequestDeps();
+```
+
+</TabItem>
+</Tabs>
+
+### isX402Required / is_x402_required
+
+Type guard (TypeScript) or helper (Python) to detect a 402 response. Use before calling `x402Payment.pay()`.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+from agent0_sdk import is_x402_required
+
+if is_x402_required(result):
+    paid = result.x402Payment.pay()
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+import { isX402Required } from 'agent0-sdk';
+
+if (isX402Required(result)) {
+  const paid = await result.x402Payment.pay();
+}
+```
+
+</TabItem>
+</Tabs>
+
+## A2A
+
+Call agents via A2A using an **Agent** (from `loadAgent`) or an **AgentSummary** (e.g. from `searchAgents`). See [Usage: A2A](/2-usage/2-10-a2a/).
+
+### createA2AClient
+
+Get a callable A2A client from an Agent or AgentSummary. With a summary, resolves the A2A endpoint from `summary.a2a`; with an Agent, returns it unchanged.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+client = sdk.createA2AClient(agent_or_summary: Union[Agent, AgentSummary])
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const client = sdk.createA2AClient(agentOrSummary: Agent | AgentSummary);
+```
+
+</TabItem>
+</Tabs>
+
+**Returns:** The Agent (if passed) or an A2A client exposing `messageA2A`, `listTasks`, `loadTask`.
+
+### messageA2A
+
+Send a message to the agent’s A2A endpoint. Call on the client from `createA2AClient` or on an Agent.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+out = client.messageA2A(
+    content: Union[str, Dict],
+    options: Optional[MessageA2AOptions] = None
+) -> Union[MessageResponse, TaskResponse, A2APaymentRequired]
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const out = await client.messageA2A(
+  content: string | { parts: Part[] },
+  options?: MessageA2AOptions
+);
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:**
+
+- `content` (str or dict): Plain text or `{ "parts": [Part] }`.
+- `options` (optional): MessageA2AOptions (blocking, contextId, taskId, credential, payment, etc.).
+
+**Returns:** **MessageResponse**, **TaskResponse** (with `task` handle), or **A2APaymentRequired** (402; use `x402Payment.pay()` then retry).
+
+### listTasks
+
+List tasks for the agent.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+tasks = client.listTasks(options: Optional[ListTasksOptions] = None)
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const tasks = await client.listTasks(options?: ListTasksOptions);
+```
+
+</TabItem>
+</Tabs>
+
+**Returns:** List of **TaskSummary**, or **A2APaymentRequired** on 402.
+
+### loadTask
+
+Load a task by ID.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+task = client.loadTask(
+    task_id: str,
+    options: Optional[LoadTaskOptions] = None
+)
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const task = await client.loadTask(taskId: string, options?: LoadTaskOptions);
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:**
+
+- `task_id` / `taskId` (str): Task ID.
+- `options` (optional): LoadTaskOptions.
+
+**Returns:** **AgentTask** (with `taskId`, `contextId`, `query()`, `message()`, `cancel()`), or **A2APaymentRequired** on 402.
+
+### task.query()
+
+Get the current task state, optional artifacts, and message history. Call on an **AgentTask** (from `loadTask` or from `response.task`).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+result = task.query(options: Optional[Dict] = None)
+# -> TaskQueryResult | A2APaymentRequired[TaskQueryResult]
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const result = await task.query(options?: { historyLength?: number });
+// TaskQueryResult | A2APaymentRequired<TaskQueryResult>
+```
+
+</TabItem>
+</Tabs>
+
+**Parameters:** `options` (optional): e.g. `historyLength` for message history.
+
+**Returns:** **TaskQueryResult** (`taskId`, `contextId`, `status?`, `artifacts?`, `messages?`), or **A2APaymentRequired** on 402. `status` is server-specific (e.g. open, working, completed, failed, canceled, rejected).
+
+### task.message()
+
+Send a follow-up message in this task. Call on an **AgentTask**.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+out = task.message(content: Union[str, Dict])
+# -> MessageResponse | TaskResponse | A2APaymentRequired
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const out = await task.message(content: string | { parts: Part[] });
+// MessageResponse | TaskResponse | A2APaymentRequired<...>
+```
+
+</TabItem>
+</Tabs>
+
+**Returns:** **MessageResponse**, **TaskResponse** (with new `task` handle if the agent created a sub-task), or **A2APaymentRequired** on 402.
+
+### task.cancel()
+
+Cancel the task. Call on an **AgentTask**.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+result = task.cancel()
+# -> TaskCancelResult | A2APaymentRequired[TaskCancelResult]
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const result = await task.cancel();
+// TaskCancelResult | A2APaymentRequired<TaskCancelResult>
+```
+
+</TabItem>
+</Tabs>
+
+**Returns:** **TaskCancelResult** (`taskId`, `contextId`, `status?`), or **A2APaymentRequired** on 402.
+
 ## Transfer Methods
 
 ### transferAgent
