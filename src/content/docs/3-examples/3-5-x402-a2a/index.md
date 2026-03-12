@@ -59,13 +59,13 @@ Load an agent and send a message. If the agent returns a task, query it, send a 
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK
+from agent0_sdk import SDK, is_x402_required
 import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 agent = sdk.loadAgent(os.getenv("AGENT_ID_PURE_A2A", "84532:1298"))
 out = agent.messageA2A("Hello, this is a demo message.")
-if not getattr(out, "x402Required", False):
+if not is_x402_required(out):
     if hasattr(out, "task") and out.task:
         out.task.query()
         out.task.message("Follow-up message.")
@@ -80,7 +80,7 @@ if not getattr(out, "x402Required", False):
 <TabItem label="TypeScript">
 
 ```ts
-import { SDK } from 'agent0-sdk';
+import { SDK, isX402Required } from 'agent0-sdk';
 
 const sdk = new SDK({
   chainId: 84532,
@@ -89,7 +89,7 @@ const sdk = new SDK({
 });
 const agent = await sdk.loadAgent(process.env.AGENT_ID_PURE_A2A ?? '84532:1298');
 const msg = await agent.messageA2A('Hello, this is a demo message.');
-if (!msg.x402Required) {
+if (!isX402Required(msg)) {
   if ('task' in msg) {
     await msg.task.query();
     await msg.task.message('Follow-up message.');
@@ -114,13 +114,13 @@ When the agent returns 402, pay then use the returned message or task response.
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK
+from agent0_sdk import SDK, is_x402_required
 import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 agent = sdk.loadAgent(os.getenv("AGENT_ID_A2A_X402", "84532:1301"))
 result = agent.messageA2A("Hello, please charge me once.")
-if getattr(result, "x402Required", False):
+if is_x402_required(result):
     paid = result.x402Payment.pay()
     print(paid)
 else:
@@ -131,7 +131,7 @@ else:
 <TabItem label="TypeScript">
 
 ```ts
-import { SDK } from 'agent0-sdk';
+import { SDK, isX402Required } from 'agent0-sdk';
 
 const sdk = new SDK({
   chainId: 84532,
@@ -140,7 +140,7 @@ const sdk = new SDK({
 });
 const agent = await sdk.loadAgent(process.env.AGENT_ID_A2A_X402 ?? '84532:1301');
 const result = await agent.messageA2A('Hello, please charge me once.');
-if (result.x402Required) {
+if (isX402Required(result)) {
   const paid = await result.x402Payment.pay();
   console.log(paid);
 } else {

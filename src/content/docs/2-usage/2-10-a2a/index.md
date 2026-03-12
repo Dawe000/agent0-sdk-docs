@@ -12,7 +12,7 @@ Load an agent by ID and send a message. The response is either a direct message 
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK
+from agent0_sdk import SDK, is_x402_required
 import os
 
 sdk = SDK(
@@ -24,7 +24,7 @@ sdk = SDK(
 agent = sdk.loadAgent("84532:1298")
 out = agent.messageA2A("Hello, this is a demo message.")
 
-if getattr(out, "x402Required", False):
+if is_x402_required(out):
     # Agent requires payment — see "When the agent returns 402" below
     pass
 elif hasattr(out, "task") and out.task:
@@ -41,7 +41,7 @@ else:
 <TabItem label="TypeScript">
 
 ```ts
-import { SDK } from 'agent0-sdk';
+import { SDK, isX402Required } from 'agent0-sdk';
 
 const sdk = new SDK({
   chainId: 84532,
@@ -52,7 +52,7 @@ const sdk = new SDK({
 const agent = await sdk.loadAgent('84532:1298');
 const msg = await agent.messageA2A('Hello, this is a demo message.');
 
-if (msg.x402Required) {
+if (isX402Required(msg)) {
   // Agent requires payment — see "When the agent returns 402" below
 } else if ('task' in msg) {
   const task = msg.task;
@@ -77,7 +77,7 @@ List tasks for the agent, then load a specific task by ID to query it or send fo
 
 ```python
 tasks = agent.listTasks()
-if not getattr(tasks, "x402Required", False) and isinstance(tasks, list) and tasks:
+if not is_x402_required(tasks) and isinstance(tasks, list) and tasks:
     loaded = agent.loadTask(tasks[0].taskId)
     loaded.query()
 ```
@@ -87,7 +87,7 @@ if not getattr(tasks, "x402Required", False) and isinstance(tasks, list) and tas
 
 ```ts
 const tasks = await agent.listTasks();
-if (!tasks.x402Required && Array.isArray(tasks) && tasks.length > 0) {
+if (!isX402Required(tasks) && Array.isArray(tasks) && tasks.length > 0) {
   const loaded = await agent.loadTask(tasks[0].taskId);
   await loaded.query();
 }
@@ -110,14 +110,16 @@ Task **status** is server-specific. Common values include `open`, `working`, `co
 
 ## When the agent returns 402
 
-If the A2A server returns HTTP 402 Payment Required, the result has `x402Required` and an `x402Payment` object. Call `pay()` (or `payFirst()`) to pay and receive the same response shape as a normal message or task.
+If the A2A server returns HTTP 402 Payment Required, the result has `x402Required` and an `x402Payment` object. Use **is_x402_required(result)** (Python) or **isX402Required(result)** (TypeScript) to detect it, then call `pay()` (or `payFirst()`) to pay and receive the same response shape as a normal message or task.
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
+from agent0_sdk import is_x402_required
+
 result = agent.messageA2A("Hello, please charge me once.")
-if getattr(result, "x402Required", False):
+if is_x402_required(result):
     paid = result.x402Payment.pay()  # Returns MessageResponse or TaskResponse after payment
     print(paid)
 else:
@@ -128,8 +130,10 @@ else:
 <TabItem label="TypeScript">
 
 ```ts
+import { isX402Required } from 'agent0-sdk';
+
 const result = await agent.messageA2A('Hello, please charge me once.');
-if (result.x402Required) {
+if (isX402Required(result)) {
   const paid = await result.x402Payment.pay();
   console.log(paid);
 } else {
