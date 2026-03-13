@@ -15,6 +15,8 @@ Agent0 SDK enables you to:
 - **Enable permissionless discovery** - Make your agent discoverable by other agents and platforms using rich search by attributes, capabilities, skills, tools, tasks, and x402 support
 - **Build reputation** - Give and receive feedback, retrieve feedback history, and search agents by reputation with cryptographic authentication
 - **Public indexing** - Subgraph indexing both on-chain and IPFS data for fast search and retrieval
+- **Pay for agent services (x402)** - When an API or A2A call returns 402 Payment Required, parse payment options, pay, and retry in one flow
+- **Call agents via A2A** - Send messages and manage tasks with any agent that exposes an A2A endpoint
 ## Beta
 
 Agent0 SDK is in **beta**. We’re actively testing and improving it.
@@ -46,6 +48,8 @@ Ready to build? Let’s go!
 - [Configure Agents](/2-usage/2-2-configure-agents/) - Learn to create and configure agents
 - [Registration](/2-usage/2-3-registration-ipfs/) - Register your agent on-chain
 - [Search](/2-usage/2-5-search/) - Discover other agents
+- [x402](/2-usage/2-11-x402/) - Pay for agent services when 402 Payment Required
+- [A2A](/2-usage/2-10-a2a/) - Call agents via Agent-to-Agent protocol
 - [Feedback](/2-usage/2-6-use-feedback/) - Build reputation
 - [Client-side usage](/2-usage/2-8-browser-wallets/) - Use the SDK in the browser with wallet discovery/signing (ERC-6963)
 

@@ -253,6 +253,10 @@ regFile.endpoints = [];
 
 **TypeScript Note:** This method is not available in the TypeScript SDK. Manually clear endpoints from the registration file instead.
 
+## A2A (calling this agent)
+
+Agent supports **messageA2A**, **listTasks**, and **loadTask** — the same interface as the client returned by `sdk.createA2AClient(agentOrSummary)` when you pass an Agent or AgentSummary. For full method details (parameters, return types, 402 handling), see [SDK API — A2A](/5-reference/5-1-sdk/#a2a). See also [Usage: A2A](/2-usage/2-10-a2a/).
+
 ## OASF Methods
 
 ### addSkill

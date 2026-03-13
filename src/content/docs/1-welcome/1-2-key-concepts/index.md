@@ -31,6 +31,14 @@ For A2A endpoints, agents define their capabilities and specific instances:
 - **skills** - Core abilities the agent has (e.g., “data_analysis”, “customer_support”)
 - **tasks** - Specific task names the agent can perform (e.g., “task_123_schedule_meeting”, “task_456_generate_report”)
 - **context** - Specific context names the agent can access (e.g., “ctx_user_preferences”, “ctx_company_data”)
+### Paying with x402
+
+When **you** call an API or an A2A agent and receive HTTP 402 Payment Required, the SDK parses payment options and can pay (EVM) and retry the request. This is the *caller* flow—paying for a request you make—distinct from declaring "x402 support" on your agent card (which means your agent accepts payment from others).
+
+### Calling agents via A2A
+
+The SDK can also **invoke** A2A agents: send messages, list and load tasks, and interact with task handles. This is the *caller* side—using the agent's `a2a` endpoint URL to make requests—separate from *advertising* your own A2A endpoint on your agent card.
+
 ## Trust Models
 
 Agent0 supports three types of trust models:

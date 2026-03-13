@@ -372,6 +372,101 @@ export interface AgentSummary {
 | `semanticScore` | `number?` / `Optional[float]` | Optional | Returned only for keyword searches (semantic prefilter score) |
 | `extras` | `Record` / `Dict[str, Any]` | Always | Reserved for experimental/extra fields |
 
+## x402 types
+
+Used when calling **sdk.request()** or when an A2A call returns 402. See [Usage: x402](/2-usage/2-11-x402/).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+# X402RequestResult[T] = T | X402RequiredResponse[T]
+# X402RequestOptions: url, method, headers?, body?, parseResponse?, payment?
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+export interface X402RequiredResponse<T> {
+  x402Required: true;
+  x402Payment: X402Payment<T>;
+}
+export type X402RequestResult<T> =
+  (T & { x402Required?: false }) | X402RequiredResponse<T>;
+export interface X402RequestOptions<T> {
+  url: string; method: string;
+  headers?: Record<string, string>;
+  body?: string | Uint8Array;
+  parseResponse?: (body: string) => T;
+  payment?: unknown;
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Type | Description |
+|------|-------------|
+| **X402RequestResult&lt;T&gt;** | Success: parsed body `T`. Or 402: **X402RequiredResponse&lt;T&gt;** with `x402Required`, `x402Payment`. |
+| **X402RequiredResponse&lt;T&gt;** | 402 response. Has `x402Payment`: **X402Payment&lt;T&gt;** with `accepts`, `pay(accept?)`, optional `payFirst()`. |
+| **X402Payment&lt;T&gt;** | `accepts: X402Accept[]`, `pay(accept?)` (accept optional index or X402Accept), `payFirst?()`. |
+| **X402Accept** | One payment option: `price`, `token`, `network?`, `destination?`, `scheme?`, `description?`, and other server fields. |
+| **X402RequestOptions&lt;T&gt;** | Request options: see table below. |
+| **ResourceInfo** | Optional resource metadata on 402 response: `url`, `description?`, `mimeType?`. |
+| **X402SettlementResponse** | Settlement result (e.g. from PAYMENT-RESPONSE header). |
+| **Parse402FromHeaderResult** | Result of parsing a PAYMENT-REQUIRED header: `accepts`, `version`, `resource?`, `error?`. |
+
+**X402RequestOptions fields:** `url` (string), `method` (string), `headers?` (Record), `body?` (string or binary), `parseResponse?` (function to parse 2xx body), `payment?` (optional payment payload to send with first request).
+
+**Parsing helpers (TypeScript):** **parse402FromHeader**, **parse402FromBody**, **parse402FromWWWAuthenticate**, **parse402SettlementFromHeader**, **parse402AcceptsFromHeader** — for custom clients or debugging 402 responses. Python: same names in snake_case in `x402_types` (e.g. `parse_402_from_header`).
+
+Check **result.x402Required** to narrow before calling `x402Payment.pay()`.
+
+## A2A response and task types
+
+Used when **calling** agents via A2A (`agent.messageA2A`, `listTasks`, `loadTask`). See [Usage: A2A](/2-usage/2-10-a2a/).
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+# Part: text?, url?, data?, raw?
+# MessageResponse: content?, parts?, contextId? (no task)
+# TaskResponse: task (AgentTask handle)
+# A2APaymentRequired[T]: x402Required, x402Payment.pay() / .pay_first()
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+export interface Part {
+  text?: string; url?: string; data?: string; raw?: string;
+}
+export interface MessageResponse {
+  x402Required?: false;
+  content?: string; parts?: Part[]; contextId?: string;
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Type | Description |
+|------|-------------|
+| **MessageResponse** | Direct message reply (no task). Has `content?`, `parts?`, `contextId?`. No `task` property. |
+| **TaskResponse** | Agent created a task. Has `task`: **AgentTask** handle. |
+| **A2APaymentRequired&lt;T&gt;** | Server returned 402. Has `x402Required: true`, `x402Payment` with `pay()`, optional `payFirst()`. After pay, get `T` (e.g. MessageResponse or TaskResponse). |
+| **TaskSummary** | One task in `listTasks()` result. Has `taskId`, `contextId`, `status?` (TaskState), `messages?`. |
+| **AgentTask** | Task handle from a TaskResponse or `loadTask()`. Methods: `query(options?)`, `message(content)`, `cancel()`. Each may return 402. |
+| **TaskState** | Server-specific status (e.g. `open`, `working`, `completed`, `failed`, `canceled`, `rejected`). |
+| **TaskQueryResult** | Return type of `task.query()`. Has `taskId`, `contextId`, `status?`, `artifacts?`, `messages?`. |
+| **TaskCancelResult** | Return type of `task.cancel()`. Has `taskId`, `contextId`, `status?`. |
+| **MessageA2AOptions** | Optional `blocking`, `contextId`, `taskId`, `credential`, `payment`, and language-specific fields (e.g. `acceptedOutputModes`, `historyLength`, `returnImmediately`). |
+| **ListTasksOptions** / **LoadTaskOptions** | Optional filters and parameters. |
+| **Part** | Content part: `text?`, `url?`, `data?`, `raw?`. Used in message content and responses. |
+
 ## Feedback
 
 <Tabs>
