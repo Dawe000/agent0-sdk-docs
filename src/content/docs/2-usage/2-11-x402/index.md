@@ -12,7 +12,7 @@ Call `sdk.request()` with a URL and method. If the server returns 402, the resul
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK, isX402Required
+from agent0_sdk import SDK
 import os
 
 sdk = SDK(
@@ -22,7 +22,7 @@ sdk = SDK(
 )
 
 result = sdk.request({"url": "https://example.com/paid-api", "method": "GET"})
-if isX402Required(result):
+if result.x402Required:
     paid = result.x402Payment.pay()  # or pay(0) for first accept
     print(paid)
 else:
@@ -33,7 +33,7 @@ else:
 <TabItem label="TypeScript">
 
 ```ts
-import { SDK, isX402Required } from 'agent0-sdk';
+import { SDK } from 'agent0-sdk';
 
 const sdk = new SDK({
   chainId: 84532,
@@ -42,7 +42,7 @@ const sdk = new SDK({
 });
 
 const result = await sdk.request({ url: 'https://example.com/paid-api', method: 'GET' });
-if (isX402Required(result)) {
+if (result.x402Required) {
   const paid = await result.x402Payment.pay(0);  // 0 = first accept
   console.log(paid);
 } else {
@@ -58,7 +58,7 @@ if (isX402Required(result)) {
 - **Success:** The return value is the parsed response body (e.g. JSON). No `x402Required` property.
 - **402:** The return value is an **X402RequiredResponse** (generic over the success type) with `x402Required: true` and `x402Payment` (accepts, `pay()`, optional `payFirst()`).
 
-Use the type guard **isX402Required(result)** (TypeScript and Python) to narrow the type before calling `x402Payment.pay()`.
+Check **result.x402Required** to detect 402 before calling `x402Payment.pay()`.
 
 ## Payment
 

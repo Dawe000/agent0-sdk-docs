@@ -863,7 +863,7 @@ Perform HTTP requests with 402 (Payment Required) handling. See [Usage: x402](/2
 
 ### request (fetchWithX402)
 
-Perform an HTTP request with x402 handling. On 2xx, returns the parsed response body. On 402, returns an object with `x402Required: true` and `x402Payment`; use `isX402Required` to narrow, then `x402Payment.pay()` or `payFirst()` to pay and retry.
+Perform an HTTP request with x402 handling. On 2xx, returns the parsed response body. On 402, returns an object with `x402Required: true` and `x402Payment`; check `result.x402Required`, then `x402Payment.pay()` or `payFirst()` to pay and retry.
 
 **Options (X402RequestOptions):** `url`, `method`, `headers?`, `body?`, `parseResponse?`, `payment?`.
 
@@ -907,17 +907,15 @@ const deps = sdk.getX402RequestDeps();
 </TabItem>
 </Tabs>
 
-### isX402Required
+### result.x402Required
 
-Type guard (TypeScript) or helper (Python) to detect a 402 response. Use before calling `x402Payment.pay()`.
+On request/A2A results, the `x402Required` property is `true` when the server returned 402 Payment Required. Check it before calling `x402Payment.pay()`.
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import isX402Required
-
-if isX402Required(result):
+if result.x402Required:
     paid = result.x402Payment.pay()
 ```
 
@@ -925,9 +923,7 @@ if isX402Required(result):
 <TabItem label="TypeScript">
 
 ```ts
-import { isX402Required } from 'agent0-sdk';
-
-if (isX402Required(result)) {
+if (result.x402Required) {
   const paid = await result.x402Payment.pay();
 }
 ```
