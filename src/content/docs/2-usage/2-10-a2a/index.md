@@ -12,7 +12,7 @@ Load an agent by ID and send a message. The response is either a direct message 
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK, is_x402_required
+from agent0_sdk import SDK, isX402Required
 import os
 
 sdk = SDK(
@@ -24,7 +24,7 @@ sdk = SDK(
 agent = sdk.loadAgent("84532:1298")
 out = agent.messageA2A("Hello, this is a demo message.")
 
-if is_x402_required(out):
+if isX402Required(out):
     # Agent requires payment — see "When the agent returns 402" below
     pass
 elif hasattr(out, "task") and out.task:
@@ -77,7 +77,7 @@ List tasks for the agent, then load a specific task by ID to query it or send fo
 
 ```python
 tasks = agent.listTasks()
-if not is_x402_required(tasks) and isinstance(tasks, list) and tasks:
+if not isX402Required(tasks) and isinstance(tasks, list) and tasks:
     loaded = agent.loadTask(tasks[0].taskId)
     loaded.query()
 ```
@@ -110,16 +110,16 @@ Task **status** is server-specific. Common values include `open`, `working`, `co
 
 ## When the agent returns 402
 
-If the A2A server returns HTTP 402 Payment Required, the result has `x402Required` and an `x402Payment` object. Use **is_x402_required(result)** (Python) or **isX402Required(result)** (TypeScript) to detect it, then call `pay()` (or `payFirst()`) to pay and receive the same response shape as a normal message or task.
+If the A2A server returns HTTP 402 Payment Required, the result has `x402Required` and an `x402Payment` object. Use **isX402Required(result)** (Python and TypeScript) to detect it, then call `pay()` (or `payFirst()`) to pay and receive the same response shape as a normal message or task.
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import is_x402_required
+from agent0_sdk import isX402Required
 
 result = agent.messageA2A("Hello, please charge me once.")
-if is_x402_required(result):
+if isX402Required(result):
     paid = result.x402Payment.pay()  # Returns MessageResponse or TaskResponse after payment
     print(paid)
 else:

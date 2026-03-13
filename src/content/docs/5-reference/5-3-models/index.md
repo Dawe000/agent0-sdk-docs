@@ -421,7 +421,7 @@ export interface X402RequestOptions<T> {
 
 **Parsing helpers (TypeScript):** **parse402FromHeader**, **parse402FromBody**, **parse402FromWWWAuthenticate**, **parse402SettlementFromHeader**, **parse402AcceptsFromHeader** — for custom clients or debugging 402 responses. Python: same names in snake_case in `x402_types` (e.g. `parse_402_from_header`).
 
-Use **isX402Required(result)** (TypeScript) or **is_x402_required(result)** (Python) to narrow before calling `x402Payment.pay()`.
+Use **isX402Required(result)** (TypeScript and Python) to narrow before calling `x402Payment.pay()`.
 
 ## A2A response and task types
 

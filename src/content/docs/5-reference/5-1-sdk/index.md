@@ -863,7 +863,7 @@ Perform HTTP requests with 402 (Payment Required) handling. See [Usage: x402](/2
 
 ### request (fetchWithX402)
 
-Perform an HTTP request with x402 handling. On 2xx, returns the parsed response body. On 402, returns an object with `x402Required: true` and `x402Payment`; use `isX402Required` / `is_x402_required` to narrow, then `x402Payment.pay()` or `payFirst()` to pay and retry.
+Perform an HTTP request with x402 handling. On 2xx, returns the parsed response body. On 402, returns an object with `x402Required: true` and `x402Payment`; use `isX402Required` to narrow, then `x402Payment.pay()` or `payFirst()` to pay and retry.
 
 **Options (X402RequestOptions):** `url`, `method`, `headers?`, `body?`, `parseResponse?`, `payment?`.
 
@@ -871,17 +871,14 @@ Perform an HTTP request with x402 handling. On 2xx, returns the parsed response 
 <TabItem label="Python">
 
 ```python
-result = sdk.request(
-    options: Dict[str, Any]
-) -> Union[T, X402RequiredResponse[T]]
+result = sdk.request(options)  # or sdk.fetchWithX402(options)
 ```
 
 </TabItem>
 <TabItem label="TypeScript">
 
 ```ts
-const result = await sdk.request<T>(options: X402RequestOptions<T>);
-sdk.fetchWithX402(options);  // alias
+const result = await sdk.request<T>(options);  // or sdk.fetchWithX402(options)
 ```
 
 </TabItem>
@@ -889,7 +886,7 @@ sdk.fetchWithX402(options);  // alias
 
 **Returns:** Parsed body `T` on success, or **X402RequiredResponse&lt;T&gt;** on 402 (with `x402Payment.pay()` / `payFirst()`).
 
-### getX402RequestDeps / get_x402_request_deps
+### getX402RequestDeps
 
 Returns the internal deps (fetch, buildPayment, checkBalance) used by `request` and by A2A when handling 402. Use when building a custom x402-aware request pipeline; most callers should use `sdk.request()` or agent A2A methods instead.
 
@@ -897,7 +894,7 @@ Returns the internal deps (fetch, buildPayment, checkBalance) used by `request` 
 <TabItem label="Python">
 
 ```python
-deps = sdk.get_x402_request_deps()
+deps = sdk.getX402RequestDeps()
 ```
 
 </TabItem>
@@ -910,7 +907,7 @@ const deps = sdk.getX402RequestDeps();
 </TabItem>
 </Tabs>
 
-### isX402Required / is_x402_required
+### isX402Required
 
 Type guard (TypeScript) or helper (Python) to detect a 402 response. Use before calling `x402Payment.pay()`.
 
@@ -918,9 +915,9 @@ Type guard (TypeScript) or helper (Python) to detect a 402 response. Use before 
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import is_x402_required
+from agent0_sdk import isX402Required
 
-if is_x402_required(result):
+if isX402Required(result):
     paid = result.x402Payment.pay()
 ```
 

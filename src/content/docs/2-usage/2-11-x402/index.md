@@ -12,7 +12,7 @@ Call `sdk.request()` with a URL and method. If the server returns 402, the resul
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK, is_x402_required
+from agent0_sdk import SDK, isX402Required
 import os
 
 sdk = SDK(
@@ -22,7 +22,7 @@ sdk = SDK(
 )
 
 result = sdk.request({"url": "https://example.com/paid-api", "method": "GET"})
-if is_x402_required(result):
+if isX402Required(result):
     paid = result.x402Payment.pay()  # or pay(0) for first accept
     print(paid)
 else:
@@ -58,7 +58,7 @@ if (isX402Required(result)) {
 - **Success:** The return value is the parsed response body (e.g. JSON). No `x402Required` property.
 - **402:** The return value is an **X402RequiredResponse** (generic over the success type) with `x402Required: true` and `x402Payment` (accepts, `pay()`, optional `payFirst()`).
 
-Use the type guard **isX402Required(result)** (TypeScript) or **is_x402_required(result)** (Python) to narrow the type before calling `x402Payment.pay()`.
+Use the type guard **isX402Required(result)** (TypeScript and Python) to narrow the type before calling `x402Payment.pay()`.
 
 ## Payment
 

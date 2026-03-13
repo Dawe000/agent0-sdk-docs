@@ -12,14 +12,14 @@ GET a URL that returns 402; pay with the first accept and use the response.
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK, is_x402_required
+from agent0_sdk import SDK, isX402Required
 import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 url = os.getenv("X402_DEMO_URL", "https://twitter.x402.agentbox.fyi/search?q=from:elonmusk+AI&type=Latest&limit=5")
 
 result = sdk.request({"url": url, "method": "GET"})
-if is_x402_required(result):
+if isX402Required(result):
     paid = result.x402Payment.pay()
     print(paid)
 else:
@@ -59,13 +59,13 @@ Load an agent and send a message. If the agent returns a task, query it, send a 
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK, is_x402_required
+from agent0_sdk import SDK, isX402Required
 import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 agent = sdk.loadAgent(os.getenv("AGENT_ID_PURE_A2A", "84532:1298"))
 out = agent.messageA2A("Hello, this is a demo message.")
-if not is_x402_required(out):
+if not isX402Required(out):
     if hasattr(out, "task") and out.task:
         out.task.query()
         out.task.message("Follow-up message.")
@@ -114,13 +114,13 @@ When the agent returns 402, pay then use the returned message or task response.
 <TabItem label="Python">
 
 ```python
-from agent0_sdk import SDK, is_x402_required
+from agent0_sdk import SDK, isX402Required
 import os
 
 sdk = SDK(chainId=84532, rpcUrl=os.getenv("RPC_URL"), signer=os.getenv("PRIVATE_KEY"))
 agent = sdk.loadAgent(os.getenv("AGENT_ID_A2A_X402", "84532:1301"))
 result = agent.messageA2A("Hello, please charge me once.")
-if is_x402_required(result):
+if isX402Required(result):
     paid = result.x402Payment.pay()
     print(paid)
 else:
