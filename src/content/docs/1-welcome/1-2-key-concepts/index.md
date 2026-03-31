@@ -24,20 +24,22 @@ For MCP endpoints, capabilities are extracted from the endpoint itself:
 - **tools** - MCP tools the agent provides (e.g., “fetch_file”, “send_email”)
 - **prompts** - MCP prompts available (e.g., “summarize_text”, “analyze_code”)
 - **resources** - MCP resources accessible (e.g., “weather_data”, “stock_prices”)
+
+These are discovery/indexing signals. At runtime, call MCP using `sdk.createMCPClient(...)` (TypeScript/Python), or `agent.mcp`. For URL input, MCP uses strict direct endpoint semantics.
 ### A2A Concepts
 
-For A2A endpoints, agents define their capabilities and specific instances:
+For A2A endpoints, discovery metadata and runtime entities are distinct:
 
-- **skills** - Core abilities the agent has (e.g., “data_analysis”, “customer_support”)
-- **tasks** - Specific task names the agent can perform (e.g., “task_123_schedule_meeting”, “task_456_generate_report”)
-- **context** - Specific context names the agent can access (e.g., “ctx_user_preferences”, “ctx_company_data”)
+- **skills** - Advertised A2A capability metadata (discoverable/indexed)
+- **tasks** - Runtime task instances created while interacting with an agent
+- **context** - Runtime conversation/task context identifiers used during calls
 ### Paying with x402
 
 When **you** call an API or an A2A agent and receive HTTP 402 Payment Required, the SDK parses payment options and can pay (EVM) and retry the request. This is the *caller* flow—paying for a request you make—distinct from declaring "x402 support" on your agent card (which means your agent accepts payment from others).
 
 ### Calling agents via A2A
 
-The SDK can also **invoke** A2A agents: send messages, list and load tasks, and interact with task handles. This is the *caller* side—using the agent's `a2a` endpoint URL to make requests—separate from *advertising* your own A2A endpoint on your agent card.
+The SDK can also **invoke** A2A agents: send messages, list and load tasks, and interact with task handles. This is the *caller* side—using `agent.a2aEndpoint`, `summary.a2a`, or URL input with `sdk.createA2AClient(...)`—separate from *advertising* your own A2A endpoint on your agent card.
 
 ## Trust Models
 

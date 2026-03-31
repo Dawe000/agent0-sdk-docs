@@ -931,30 +931,82 @@ if (result.x402Required) {
 </TabItem>
 </Tabs>
 
-## A2A
+## Runtime Client Methods
 
-Call agents via A2A using an **Agent** (from `loadAgent`) or an **AgentSummary** (e.g. from `searchAgents`). See [Usage: A2A](/2-usage/2-10-a2a/).
+Use runtime clients when you want to invoke live A2A/MCP endpoints. These methods accept loaded `Agent`, discovered `AgentSummary`, or direct URL input.
 
-### createA2AClient
+### createMCPClient
 
-Get a callable A2A client from an Agent or AgentSummary. With a summary, resolves the A2A endpoint from `summary.a2a`; with an Agent, returns it unchanged.
+Create an MCP runtime client from an `Agent`, `AgentSummary`, or URL.
 
 <Tabs>
 <TabItem label="Python">
 
 ```python
-client = sdk.createA2AClient(agent_or_summary: Union[Agent, AgentSummary])
+mcp = sdk.createMCPClient(agent_or_summary_or_url, options=None)
 ```
 
 </TabItem>
 <TabItem label="TypeScript">
 
 ```ts
-const client = sdk.createA2AClient(agentOrSummary: Agent | AgentSummary);
+const mcp = sdk.createMCPClient(agentOrSummaryOrUrl, options?);
 ```
 
 </TabItem>
 </Tabs>
+
+**Input modes:**
+
+- `Agent` - returns the agent MCP handle (`agent.mcp`)
+- `AgentSummary` - resolves endpoint from `summary.mcp`
+- `URL string` - uses the URL as the strict direct MCP JSON-RPC endpoint (no `/.well-known` discovery)
+
+**Returns:** MCP runtime handle exposing tools, prompts, and resources.
+
+**Runtime MCP capabilities:**
+
+- `mcp.tools.list()` and `mcp.tools.call(name, args?)`
+- `mcp.prompts.list()` and `mcp.prompts.get(name, args?)`
+- `mcp.resources.list()`, `mcp.resources.templates()`, and `mcp.resources.read(uri)`
+
+**Auth/session note:** MCP auth/session negotiation is transport/server specific and handled by the MCP client stack.
+
+**x402 note:** If an MCP endpoint enforces payment, use x402 handling in your runtime flow (see [Usage: x402](/2-usage/2-11-x402/)).
+
+See [Usage: Configure Agents](/2-usage/2-2-configure-agents/#runtime-client-creation-mcp--a2a) for examples.
+See [Usage: MCP](/2-usage/2-12-mcp/) for end-to-end runtime MCP usage.
+
+## A2A
+
+Call agents via A2A using an **Agent** (from `loadAgent`), an **AgentSummary** (e.g. from `searchAgents`), or a URL string. See [Usage: A2A](/2-usage/2-10-a2a/).
+
+### createA2AClient
+
+Get a callable A2A client from an `Agent`, `AgentSummary`, or URL string.
+
+<Tabs>
+<TabItem label="Python">
+
+```python
+client = sdk.createA2AClient(agent_or_summary_or_url)
+```
+
+</TabItem>
+<TabItem label="TypeScript">
+
+```ts
+const client = sdk.createA2AClient(agentOrSummaryOrUrl);
+```
+
+</TabItem>
+</Tabs>
+
+**Input modes:**
+
+- `Agent` - returns the agent itself (A2A methods available directly on Agent)
+- `AgentSummary` - resolves from `summary.a2a`
+- `URL string` - supports base URL discovery (`/.well-known/agent-card.json` then `/.well-known/agent.json`) or direct agent-card URL
 
 **Returns:** The Agent (if passed) or an A2A client exposing `messageA2A`, `listTasks`, `loadTask`.
 

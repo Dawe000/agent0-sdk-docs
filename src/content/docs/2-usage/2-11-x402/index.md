@@ -53,6 +53,18 @@ if (result.x402Required) {
 </TabItem>
 </Tabs>
 
+## A2A and MCP
+
+The same x402 flow applies to both protocol runtimes:
+
+- **A2A:** handle `x402Required` from `messageA2A`, `listTasks`, `loadTask`, then call `x402Payment.pay()`.
+- **MCP:** if an MCP endpoint is payment-gated, use the same pay-and-retry flow in your MCP runtime request pipeline.
+
+See:
+
+- [A2A usage](/2-usage/2-10-a2a/#when-the-agent-returns-402)
+- [MCP usage](/2-usage/2-12-mcp/#when-mcp-returns-402)
+
 ## Result type
 
 - **Success:** The return value is the parsed response body (e.g. JSON). No `x402Required` property.

@@ -186,7 +186,7 @@ class Endpoint:
 export interface Endpoint {
   type: EndpointType;
   value: string;  // Endpoint value (URL, name, DID, ENS)
-  meta?: Record;  // Optional metadata
+  meta?: Record<string, any>;  // Optional metadata
 }
 ```
 
@@ -237,7 +237,7 @@ export interface RegistrationFile {
   operators: Address[];  // from chain (read-only, hydrated)
   active: boolean;
   x402support: boolean;
-  metadata: Record;
+  metadata: Record<string, any>;
   updatedAt: Timestamp;
 }
 ```
@@ -317,8 +317,8 @@ export interface AgentSummary {
   mcpTools: string[];
   mcpPrompts: string[];
   mcpResources: string[];
-  oasfSkills?: string[];
-  oasfDomains?: string[];
+  oasfSkills: string[];
+  oasfDomains: string[];
   active: boolean;
   x402support: boolean;
   // Optional (search-derived / subgraph fields)
@@ -330,7 +330,7 @@ export interface AgentSummary {
   feedbackCount?: number;
   averageValue?: number;
   semanticScore?: number;
-  extras: Record;
+  extras: Record<string, any>;
 }
 ```
 
@@ -348,8 +348,8 @@ export interface AgentSummary {
 | `operators` | `Address[]` / `List[Address]` | Always | Subgraph `Agent.operators` |
 | `active` | `boolean` / `bool` | Always | Subgraph `Agent.registrationFile.active` |
 | `x402support` | `boolean` / `bool` | Always | Subgraph `Agent.registrationFile.x402Support` (compat: `x402support`) |
-| `mcp` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.mcpEndpoint` |
-| `a2a` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.a2aEndpoint` |
+| `mcp` | `string?` / `Optional[str]` | Optional | Advertised endpoint string from subgraph `Agent.registrationFile.mcpEndpoint` (used for discovery/client bootstrap) |
+| `a2a` | `string?` / `Optional[str]` | Optional | Advertised endpoint string from subgraph `Agent.registrationFile.a2aEndpoint` (used for discovery/client bootstrap) |
 | `web` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.webEndpoint` |
 | `email` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.emailEndpoint` |
 | `ens` | `string?` / `Optional[str]` | Optional | Subgraph `Agent.registrationFile.ens` |
@@ -371,6 +371,25 @@ export interface AgentSummary {
 | `averageValue` | `number?` / `Optional[float]` | Optional | Computed by unified search feedback prefilter for the current query |
 | `semanticScore` | `number?` / `Optional[float]` | Optional | Returned only for keyword searches (semantic prefilter score) |
 | `extras` | `Record` / `Dict[str, Any]` | Always | Reserved for experimental/extra fields |
+
+## Endpoint and Runtime Client Semantics
+
+`AgentSummary` endpoint fields (`mcp`, `a2a`, `web`, `email`) are advertised endpoint strings used for discovery and routing. They are not by themselves a runtime contract.
+
+Runtime invocation uses SDK client factories:
+
+- MCP:
+  - TypeScript: `sdk.createMCPClient(agentOrSummaryOrUrl, options?)`
+  - Python: `sdk.createMCPClient(agent_or_summary_or_url, options=None)`
+- A2A:
+  - TypeScript/Python: `sdk.createA2AClient(agentOrSummaryOrUrl)`
+
+URL semantics:
+
+- MCP URL input is strict direct endpoint.
+- A2A URL input supports base URL discovery and direct agent-card URL.
+
+See [SDK API — Runtime Client Methods](/5-reference/5-1-sdk/#runtime-client-methods) and [Configure Agents — Runtime Client Creation](/2-usage/2-2-configure-agents/#runtime-client-creation-mcp--a2a).
 
 ## x402 types
 
@@ -422,6 +441,20 @@ export interface X402RequestOptions<T> {
 **Parsing helpers (TypeScript):** **parse402FromHeader**, **parse402FromBody**, **parse402FromWWWAuthenticate**, **parse402SettlementFromHeader**, **parse402AcceptsFromHeader** — for custom clients or debugging 402 responses. Python: same names in snake_case in `x402_types` (e.g. `parse_402_from_header`).
 
 Check **result.x402Required** to narrow before calling `x402Payment.pay()`.
+
+## MCP runtime surface
+
+Used when **calling** agents via MCP (`createMCPClient` or `agent.mcp`). See [Usage: MCP](/2-usage/2-12-mcp/).
+
+| Surface | Description |
+|------|-------------|
+| **tools.list()** | Lists callable MCP tools exposed by the endpoint. |
+| **tools.call(name, args?)** | Invokes a specific MCP tool with optional arguments. |
+| **prompts.list()** | Lists available MCP prompts. |
+| **prompts.get(name, args?)** | Retrieves a prompt by name with optional arguments. |
+| **resources.list()** | Lists available MCP resources. |
+| **resources.templates()** | Lists MCP resource templates when supported by the server. |
+| **resources.read(uri)** | Reads a resource by URI. |
 
 ## A2A response and task types
 
@@ -511,11 +544,11 @@ export interface Feedback {
   value?: number;
   tags: string[];
   text?: string;
-  proofOfPayment?: Record;
+  proofOfPayment?: Record<string, any>;
   fileURI?: URI;
   endpoint?: string;
   createdAt: Timestamp;
-  answers: Array<Record>;
+  answers: Array<Record<string, any>>;
   isRevoked: boolean;
 
   // Subgraph FeedbackFile fields (spec-aligned)

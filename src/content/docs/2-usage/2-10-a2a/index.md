@@ -148,6 +148,12 @@ if (result.x402Required) {
 
 See the SDK reference for full option types. The minimal examples above work without options.
 
-## Using an AgentSummary from search
+## Using AgentSummary or URL
 
-When you have an **Agent** (from `loadAgent`), call `messageA2A`, `listTasks`, and `loadTask` on it directly. When you have an **AgentSummary** (e.g. from `searchAgents`) and no full Agent, use `sdk.createA2AClient(summary)` to get a client that resolves the A2A endpoint from `summary.a2a` and exposes the same methods.
+When you have an **Agent** (from `loadAgent`), call `messageA2A`, `listTasks`, and `loadTask` on it directly.
+
+When you do not have a full `Agent`, use `sdk.createA2AClient(...)`:
+
+- `sdk.createA2AClient(summary)` resolves from `summary.a2a`
+- `sdk.createA2AClient("https://assistant.example.com")` resolves from a base URL
+- `sdk.createA2AClient("https://assistant.example.com/.well-known/agent-card.json")` uses a direct agent-card URL

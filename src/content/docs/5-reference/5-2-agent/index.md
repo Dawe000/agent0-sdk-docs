@@ -253,9 +253,26 @@ regFile.endpoints = [];
 
 **TypeScript Note:** This method is not available in the TypeScript SDK. Manually clear endpoints from the registration file instead.
 
-## A2A (calling this agent)
+## Runtime Protocol Methods
 
-Agent supports **messageA2A**, **listTasks**, and **loadTask** — the same interface as the client returned by `sdk.createA2AClient(agentOrSummary)` when you pass an Agent or AgentSummary. For full method details (parameters, return types, 402 handling), see [SDK API — A2A](/5-reference/5-1-sdk/#a2a). See also [Usage: A2A](/2-usage/2-10-a2a/).
+When loaded via `sdk.loadAgent(...)`, an `Agent` can be used directly for runtime protocol invocation.
+
+### MCP (agent.mcp)
+
+Use `agent.mcp` for MCP runtime calls:
+
+- `agent.mcp.tools.list()` / `agent.mcp.tools.call(...)`
+- `agent.mcp.prompts.list()` / `agent.mcp.prompts.get(...)`
+- `agent.mcp.resources.list()` / `agent.mcp.resources.templates()` / `agent.mcp.resources.read(...)`
+
+For full runtime client semantics (including `AgentSummary` and URL inputs), see [SDK API — Runtime Client Methods](/5-reference/5-1-sdk/#runtime-client-methods).
+For end-to-end MCP usage examples, see [Usage: MCP](/2-usage/2-12-mcp/).
+
+### A2A (calling this agent)
+
+Agent supports **messageA2A**, **listTasks**, and **loadTask** — the same runtime interface exposed by `sdk.createA2AClient(...)`.
+
+`sdk.createA2AClient(...)` accepts `Agent`, `AgentSummary`, or URL. This page documents the Agent-instance runtime surface; see [SDK API — A2A](/5-reference/5-1-sdk/#a2a) for full signature/return details and [Usage: A2A](/2-usage/2-10-a2a/) for examples.
 
 ## OASF Methods
 

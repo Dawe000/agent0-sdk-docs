@@ -53,6 +53,7 @@ export default defineConfig({
             { label: "Search", link: "/2-usage/2-5-search/" },
             { label: "x402", link: "/2-usage/2-11-x402/" },
             { label: "A2A", link: "/2-usage/2-10-a2a/" },
+            { label: "MCP", link: "/2-usage/2-12-mcp/" },
             { label: "Feedback", link: "/2-usage/2-6-use-feedback/" },
             { label: "Transfer", link: "/2-usage/2-7-transfer-agents/" },
             { label: "Client-side usage", link: "/2-usage/2-8-browser-wallets/" }
@@ -65,6 +66,7 @@ export default defineConfig({
             { label: "Agent Update", link: "/3-examples/3-2-agent-update/" },
             { label: "Feedback Usage", link: "/3-examples/3-3-feedback-usage/" },
             { label: "Search Agents", link: "/3-examples/3-4-search-agents/" },
+            { label: "MCP", link: "/3-examples/3-6-mcp/" },
             { label: "x402 and A2A", link: "/3-examples/3-5-x402-a2a/" }
           ]
         },

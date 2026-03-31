@@ -246,6 +246,8 @@ agent.removeEndpoints();
 
 ## Wallet Configuration
 
+For runtime protocol invocation (calling other agents), see [A2A usage](/2-usage/2-10-a2a/) and [MCP usage](/2-usage/2-12-mcp/).
+
 ### Default behavior (wallet is set to the owner by default)
 
 Per ERC-8004, `agentWallet` is **initially set to the agent owner’s address**.
@@ -721,7 +723,7 @@ agent = sdk.createAgent(
 
 # Set endpoints
 agent.setMCP("https://mcp.example.com/")
-agent.setA2A("https://a2a.example.com/agent.json")
+agent.setA2A("https://a2a.example.com/agent-card.json")
 agent.setENS("myagent.eth")
 
 # Set trust models
@@ -766,7 +768,7 @@ const agent = sdk.createAgent(
 
 // Set endpoints (async in TypeScript)
 await agent.setMCP('https://mcp.example.com/');
-await agent.setA2A('https://a2a.example.com/agent.json');
+await agent.setA2A('https://a2a.example.com/agent-card.json');
 agent.setENS('myagent.eth');
 
 // Set trust models
