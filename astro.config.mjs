@@ -66,8 +66,8 @@ export default defineConfig({
             { label: "Agent Update", link: "/3-examples/3-2-agent-update/" },
             { label: "Feedback Usage", link: "/3-examples/3-3-feedback-usage/" },
             { label: "Search Agents", link: "/3-examples/3-4-search-agents/" },
-            { label: "MCP", link: "/3-examples/3-6-mcp/" },
-            { label: "x402 and A2A", link: "/3-examples/3-5-x402-a2a/" }
+            { label: "x402 and A2A", link: "/3-examples/3-5-x402-a2a/" },
+            { label: "MCP", link: "/3-examples/3-6-mcp/" }
           ]
         },
         {
